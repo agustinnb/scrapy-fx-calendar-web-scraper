@@ -1,11 +1,19 @@
 from doctest import script_from_examples
 from pydispatch import dispatcher
 from scrapy import signals
-
+import psycopg2
 
 
 class ScrapyAppPipeline(object):
     def __init__(self, unique_id, *args, **kwargs):
+        ## Connection to PostgreSQL
+        hostname = 'ec2-34-199-68-114.compute-1.amazonaws.com'
+        username = 'lzhxopekerjaby'
+        password = 'a5e90648b71ebb20a6c5cba94b056bd2e04cb676d54e7f9f7e901c60f86b161f'
+        database = 'd8q7q926sob5if'
+        port = '5432'
+        self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database,port=port)
+        self.cur = self.connection.cursor()
         self.unique_id = unique_id
         dispatcher.connect(self.spider_closed, signals.spider_closed)
 
