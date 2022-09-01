@@ -17,7 +17,7 @@ class ScrapyAppPipeline(object):
         self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database,port=port)
         self.cur = self.connection.cursor()
         self.unique_id = unique_id
-
+        self.items = []   
 
         dispatcher.connect(self.spider_closed, signals.spider_closed)
 
@@ -46,57 +46,128 @@ class ScrapyAppPipeline(object):
     #    scrapy_item.revised = item['revised']
     #    scrapy_item.lastUpdate = item['lastUpdate']
                 ## Define insert statement
-        self.cur.execute( """select * from fxcalendar_scrapyitem""" )
-        self.rows = self.cur.fetchall()
-        for row in self.rows:
-            id, unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate = row 
-            if (unique_id != item["unique_id"]):
-                print ('INSERTO')
-                self.cur.execute("""insert into fxcalendar_scrapyitem (unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
-                    item["unique_id"],
-                    item["ticker"],
-                    item["symbol"],
-                    item["date"],
-                    item["title"],
-                    item["description"],
-                    item["importance"],
-                    item["previous"],
-                    item["forecast"],
-                    item["country"],
-                    item["actual"],
-                    item["alldayevent"] or False,
-                    item["currency"],
-                    item["reference"],
-                    item["revised"],
-                    item["lastupdate"]
-                ))
-            elif (lastupdate < pytz.UTC.localize((datetime.strptime(item["lastupdate"], '%Y-%m-%dT%H:%M')))):
-                print ('UPDATEO')
-                print (lastupdate)
-                print (item['lastupdate'])
-                self.cur.execute("""update fxcalendar_scrapyitem set ticker=%s, symbol=%s, date=%s, title=%s, description=%s, importance=%s, previous=%s, forecast=%s, country=%s, actual=%s, alldayevent=%s, currency=%s, reference=%s, revised=%s, lastupdate=%s where unique_id=%s""", (
-                    item["ticker"],
-                    item["symbol"],
-                    item["date"],
-                    item["title"],
-                    item["description"],
-                    item["importance"],
-                    item["previous"],
-                    item["forecast"],
-                    item["country"],
-                    item["actual"],
-                    item["alldayevent"] or False,
-                    item["currency"],
-                    item["reference"],
-                    item["revised"],
-                    item["lastupdate"],
-                    item["unique_id"]
-                ))
-            else:
-                print('NO HAGO NADA')
-        self.connection.commit()
-        # time.sleep(.300)
+    #    self.cur.execute( """select * from fxcalendar_scrapyitem""" )
+    #    self.rows = self.cur.fetchall()
+        # item['lastupdate'] = pytz.UTC.localize((datetime.strptime(item["lastupdate"], '%Y-%m-%dT%H:%M')))
+        self.items.append(item)
+    #   if (len(self.rows) != 0):
+    #           if (unique_id != item["unique_id"]):
+    #               print ('INSERTO')
+    #               self.cur.execute("""insert into fxcalendar_scrapyitem (unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
+    #                   item["unique_id"],
+    #                   item["ticker"],
+    #                   item["symbol"],
+    #                   item["date"],
+    #                   item["title"],
+    #                   item["description"],
+    #                   item["importance"],
+    #                   item["previous"],
+    #                   item["forecast"],
+    #                   item["country"],
+    #                   item["actual"],
+    #                   item["alldayevent"] or False,
+    #                   item["currency"],
+    #                   item["reference"],
+    #                   item["revised"],
+    #                   item["lastupdate"]
+    #               ))
+    #           elif (lastupdate < pytz.UTC.localize((datetime.strptime(item["lastupdate"], '%Y-%m-%dT%H:%M')))):
+    #               print ('UPDATEO')
+    #               self.cur.execute("""update fxcalendar_scrapyitem set ticker=%s, symbol=%s, date=%s, title=%s, description=%s, importance=%s, previous=%s, forecast=%s, country=%s, actual=%s, alldayevent=%s, currency=%s, reference=%s, revised=%s, lastupdate=%s where unique_id=%s""", (
+    #                   item["ticker"],
+    #                   item["symbol"],
+    #                   item["date"],
+    #                   item["title"],
+    #                   item["description"],
+    #                   item["importance"],
+    #                   item["previous"],
+    #                   item["forecast"],
+    #                   item["country"],
+    #                   item["actual"],
+    #                   item["alldayevent"] or False,
+    #                   item["currency"],
+    #                   item["reference"],
+    #                   item["revised"],
+    #                   item["lastupdate"],
+    #                   item["unique_id"]
+    #               ))
+    #           else:
+    #               print('NO HAGO NADA')
+    #   else:
+    #           print ('INSERTO')
+    #           self.cur.execute("""insert into fxcalendar_scrapyitem (unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
+    #               item["unique_id"],
+    #               item["ticker"],
+    #               item["symbol"],
+    #               item["date"],
+    #               item["title"],
+    #               item["description"],
+    #               item["importance"],
+    #               item["previous"],
+    #               item["forecast"],
+    #               item["country"],
+    #               item["actual"],
+    #               item["alldayevent"] or False,
+    #               item["currency"],
+    #               item["reference"],
+    #               item["revised"],
+    #               item["lastupdate"]
+    #           ))
+    #   self.connection.commit()
         return item
+    
+
 
     def spider_closed(self, spider):
+        self.cur.execute( """select * from fxcalendar_scrapyitem""" )
+        self.rows = self.cur.fetchall()
+        execinsert = False
+        for item in self.items:
+            print (item["unique_id"])
+            insertado= False
+            for row in self.rows:
+                id, unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate = row 
+                if (item['unique_id']==unique_id):
+                    insertado=True
+                    saveitem=item        
+            if (insertado==False):
+                self.cur.execute("""insert into fxcalendar_scrapyitem (unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
+                   item["unique_id"],
+                   item["ticker"],
+                   item["symbol"],
+                   item["date"],
+                   item["title"],
+                   item["description"],
+                   item["importance"],
+                   item["previous"],
+                   item["forecast"],
+                   item["country"],
+                   item["actual"],
+                   item["alldayevent"] or False,
+                   item["currency"],
+                   item["reference"],
+                   item["revised"],
+                   item["lastupdate"]
+               ))
+                self.connection.commit()
+            elif (pytz.UTC.localize((datetime.strptime(item["lastupdate"]))) > pytz.UTC.localize((datetime.strptime(saveitem["lastupdate"])))):
+                self.cur.execute("""update fxcalendar_scrapyitem set ticker=%s, symbol=%s, date=%s, title=%s, description=%s, importance=%s, previous=%s, forecast=%s, country=%s, actual=%s, alldayevent=%s, currency=%s, reference=%s, revised=%s, lastupdate=%s where unique_id=%s""", (
+                        item["ticker"],
+                        item["symbol"],
+                        item["date"],
+                        item["title"],
+                        item["description"],
+                        item["importance"],
+                        item["previous"],
+                        item["forecast"],
+                        item["country"],
+                        item["actual"],
+                        item["alldayevent"] or False,
+                        item["currency"],
+                        item["reference"],
+                        item["revised"],
+                        item["lastupdate"],
+                        item["unique_id"]
+                ))
+                self.connection.commit()
         print('SPIDER FINISHED!')
