@@ -95,7 +95,7 @@ class ScrapyAppPipeline(object):
             else:
                 print('NO HAGO NADA')
         self.connection.commit()
-        time.sleep(.300)
+        # time.sleep(.300)
         return item
 
     def spider_closed(self, spider):
