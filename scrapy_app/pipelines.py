@@ -41,6 +41,25 @@ class ScrapyAppPipeline(object):
     #    scrapy_item.reference = item['reference']
     #    scrapy_item.revised = item['revised']
     #    scrapy_item.lastUpdate = item['lastUpdate']
+                ## Define insert statement
+        self.cur.execute("""insert into fxcalendar_scrapyitem (unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, allDayEvent, currency, reference, revised, lastUpdate) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
+            item["unique_id"],
+            item["ticker"],
+            item["symbol"],
+            item["date"],
+            item["title"],
+            item["description"],
+            item["importance"],
+            item["previous"],
+            item["forecast"],
+            item["country"],
+            item["actual"],
+            item["allDayEvent"],
+            item["currency"],
+            item["reference"],
+            item["revised"],
+            item["lastUpdate"]
+        ))
         return item
 
     def spider_closed(self, spider):
