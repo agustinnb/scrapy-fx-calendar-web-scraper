@@ -17,8 +17,7 @@ class ScrapyAppPipeline(object):
         self.connection = psycopg2.connect(host=hostname, user=username, password=password, dbname=database,port=port)
         self.cur = self.connection.cursor()
         self.unique_id = unique_id
-        self.cur.execute( """select * from fxcalendar_scrapyitem""" )
-        self.rows = self.cur.fetchall()
+
 
         dispatcher.connect(self.spider_closed, signals.spider_closed)
 
@@ -47,6 +46,8 @@ class ScrapyAppPipeline(object):
     #    scrapy_item.revised = item['revised']
     #    scrapy_item.lastUpdate = item['lastUpdate']
                 ## Define insert statement
+        self.cur.execute( """select * from fxcalendar_scrapyitem""" )
+        self.rows = self.cur.fetchall()
         for row in self.rows:
             id, unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate = row 
             if (unique_id != item["unique_id"]):
