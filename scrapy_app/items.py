@@ -20,9 +20,9 @@ class ScrapyAppItem(scrapy.Item):
     forecast = scrapy.Field()
     country = scrapy.Field()
     actual = scrapy.Field()
-    allDayEvent = scrapy.Field()
+    alldayevent = scrapy.Field()
     currency = scrapy.Field()
     reference = scrapy.Field()
     revised = scrapy.Field()
     #economicMeaning = []
-    lastUpdate = scrapy.Field()
+    lastupdate = scrapy.Field()

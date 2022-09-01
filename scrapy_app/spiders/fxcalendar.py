@@ -15,7 +15,7 @@ class FxcalendarSpider(scrapy.Spider):
         lastsplit2=lastsplit[0].split(',\n{')
         json_data = json.loads(lastsplit2[0])
         
-        for i in range(0,len(json_data)):           
+        for i in range(0,1):           
             item = items.ScrapyAppItem()
             item['unique_id']=json_data[i]['id']
             item['ticker']=json_data[i]['ticker']
@@ -28,11 +28,11 @@ class FxcalendarSpider(scrapy.Spider):
             item['forecast']=json_data[i]['forecast']
             item['country']=json_data[i]['country']
             item['actual']=json_data[i]['actual']
-            item['allDayEvent']=json_data[i]['allDayEvent']
+            item['alldayevent']=json_data[i]['allDayEvent']
             item['currency']=json_data[i]['currency']
             item['reference']=json_data[i]['reference']
             item['revised']=json_data[i]['revised']
-            item['lastUpdate']=json_data[i]['lastUpdate']
+            item['lastupdate']=json_data[i]['lastUpdate']
             yield item
         
         

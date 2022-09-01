@@ -42,7 +42,8 @@ class ScrapyAppPipeline(object):
     #    scrapy_item.revised = item['revised']
     #    scrapy_item.lastUpdate = item['lastUpdate']
                 ## Define insert statement
-        self.cur.execute("""insert into fxcalendar_scrapyitem (unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, allDayEvent, currency, reference, revised, lastUpdate) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
+        print (item)
+        self.cur.execute("""insert into fxcalendar_scrapyitem (unique_id, ticker, symbol, date, title, description, importance, previous, forecast, country, actual, alldayevent, currency, reference, revised, lastupdate) values (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)""", (
             item["unique_id"],
             item["ticker"],
             item["symbol"],
@@ -54,7 +55,7 @@ class ScrapyAppPipeline(object):
             item["forecast"],
             item["country"],
             item["actual"],
-            item["allDayEvent"],
+            item["allDayEvent"] or False,
             item["currency"],
             item["reference"],
             item["revised"],
